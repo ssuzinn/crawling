@@ -1,6 +1,8 @@
 import re
 import math
 from crawler.BaseDriver import *
+import urllib.request
+from bs4 import BeautifulSoup
 import time
 
 class NaverCrawler(BaseDriver):
@@ -46,12 +48,25 @@ class NaverCrawler(BaseDriver):
             f.write(url +'\n')
         f.close()
 
+
 class NaverBlog(BaseDriver):
     f=open('./urllist.txt')
     urls=[t.strip() for t in f.readlines()]
     baseurl =urls[0]
     def run(self,keyword=None):
         pass
+    def get_title(self):
+        html = self.driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        return soup.title.string
+    def get_content(self):
+        html = self.driver.page_source
+        soup = BeautifulSoup(html, 'html.parser')
+        print(soup.get_text())
+        content = soup.find_all(class_='se-text-paragraph se-text-paragraph-align-center ')
+
+        return content
+
 
 
 
