@@ -8,23 +8,33 @@ from crawler.BaseDriver import *
 
 class NaverCrawler(BaseDriver):
     baseurl = 'https://section.blog.naver.com/BlogHome.nhn?directoryNo=0&currentPage=1&groupId=0'
-    url_file_path = os.path.join(cur_path, 'urls.json')
-    content_file_path = os.path.join(cur_path, 'contents.json')
+    url_file_path = os.path.join(cur_path, '건강관리_urls.json')
+    #content_file_path = os.path.join(cur_path, 'contents.json')
     base_content_css_path = "#printPost1 > tbody > tr > td.bcc > div.wrap_rabbit"
     content_css_path = ""
+    E = []
 
     def run(self, keyword: str):
         if os.path.isfile(self.url_file_path):
             with open(self.url_file_path, 'r') as urlf:
                 self.url_list = json.load(urlf)
         else:
-            self.save_links(keyword="LG ThinQ")
+            self.save_links(keyword=keyword)
+
 
         for link in self.url_list:
-            self.get_content(link=link)
+            try:
+                self.get_content(link=link)
+            except:
+                self.E.append(link)
 
-        with open(self.content_file_path, 'rw') as cf:
+        self.content_file_path = os.path.join(cur_path, f'contents_{keyword}.json')
+        with open(self.content_file_path, 'w',encoding='utf8') as cf:
             json.dump(self.contents, cf, indent="\t", ensure_ascii=False)
+
+        if len(self.E) != 1:
+            with open(f'error_links_{keyword}.json', mode='w') as urlEf:
+                json.dump(self.E, urlEf, indent="\t", ensure_ascii=False)
 
     def save_links(self, keyword: str):
         self.submit_keyword(
